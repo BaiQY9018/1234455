@@ -3,6 +3,9 @@ const SUPABASE_ANON_KEY = 'sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle';
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 兼容其他页面直接用supabase变量名
+window.supabase = supabaseClient;
+
 function formatTime(isoString) {
   const date = new Date(isoString);
   return date.toLocaleDateString('zh-CN', {
@@ -57,4 +60,3 @@ function showAlert(message, type = 'success') {
     alertDiv.remove();
   }, 3000);
 }
-
