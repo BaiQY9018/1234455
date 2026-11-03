@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function formatTime(isoString) {
   const date = new Date(isoString);
@@ -13,7 +13,7 @@ function formatTime(isoString) {
 }
 
 async function getCurrentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   return user;
 }
 
@@ -41,7 +41,7 @@ async function updateNav() {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   window.location.href = 'index.html';
 }
 
@@ -57,3 +57,4 @@ function showAlert(message, type = 'success') {
     alertDiv.remove();
   }, 3000);
 }
+
