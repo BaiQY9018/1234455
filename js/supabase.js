@@ -1,10 +1,8 @@
 const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle';
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// 兼容其他页面直接用supabase变量名
-window.supabase = supabaseClient;
+// 直接把全局supabase替换成客户端实例，所有页面直接用
+window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function formatTime(isoString) {
   const date = new Date(isoString);
@@ -16,7 +14,7 @@ function formatTime(isoString) {
 }
 
 async function getCurrentUser() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   return user;
 }
 
@@ -44,7 +42,7 @@ async function updateNav() {
 }
 
 async function logout() {
-  await supabaseClient.auth.signOut();
+  await supabase.auth.signOut();
   window.location.href = 'index.html';
 }
 
