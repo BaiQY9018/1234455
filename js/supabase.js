@@ -1,11 +1,8 @@
-// Supabase 配置
 const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle';
 
-// 初始化 Supabase 客户端
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 工具函数：格式化时间
 function formatTime(isoString) {
   const date = new Date(isoString);
   return date.toLocaleDateString('zh-CN', {
@@ -15,13 +12,11 @@ function formatTime(isoString) {
   });
 }
 
-// 工具函数：获取当前登录用户
 async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 }
 
-// 工具函数：检查登录状态，更新导航
 async function updateNav() {
   const user = await getCurrentUser();
   const navLinks = document.getElementById('nav-links');
@@ -45,13 +40,11 @@ async function updateNav() {
   }
 }
 
-// 退出登录
 async function logout() {
   await supabase.auth.signOut();
   window.location.href = 'index.html';
 }
 
-// 显示提示信息
 function showAlert(message, type = 'success') {
   const alertDiv = document.createElement('div');
   alertDiv.className = `alert alert-${type}`;
