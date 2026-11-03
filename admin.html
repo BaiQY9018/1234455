@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 style="margin-bottom: 24px; color: #2c2416;">个人中心</h2>
+
+    <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+      <button class="btn" onclick="showTab('poems')" id="tab-poems">我的诗歌</button>
+      <button class="btn btn-secondary" onclick="showTab('notes')" id="tab-notes">我的感言</button>
+    </div>
+
+    <div id="poems-tab">
+      <h3 style="margin-bottom: 16px; font-size: 16px; color: #555;">我发布的诗歌</h3>
+      <div id="my-poems-list">
+        <div class="empty-state">
+          <p>加载中...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="notes-tab" style="display: none;">
+      <h3 style="margin-bottom: 16px; font-size: 16px; color: #555;">我发表的感言</h3>
+      <div id="my-notes-list">
+        <div class="empty-state">
+          <p>加载中...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    let currentUser = null;
+
+    // 切换标签
+    function showTab(tab) {
+      document.getElementById('poems-tab').style.display = tab === 'poems' ? 'block' : 'none';
+      document.getElementById('notes-tab').style.display = tab === 'notes' ? 'block' : 'none';
+      
+      document.getElementById('tab-poems').className = tab === 'poems' ? 'btn' : 'btn btn-secondary';
+      document.getElementById('tab-notes').className = tab === 'notes' ? 'btn' : 'btn btn-secondary';
+    }
+
+    // 检查登录状态
+    async function checkAuth() {
+      currentUser = await getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+      } else {
+        loadMyPoems();
+        loadMyNotes();
+      }
+    }
+
+    // 加载我的诗歌
+    async function loadMyPoems() {
+      const { data: poems, error } = await supabase
+        .from('poems')
+        .select('*')
+        .eq('author_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('my-poems-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载失败</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (poems.length === 0) {
+        document.getElementById('my-poems-list').innerHTML = `
+          <div class="empty-state">
+            <p>你还没有发布诗歌</p>
+            <a href="publish.html" class="btn">去发布</a>
+          </div>
+        `;
+        return;
+      }
+
+      const html = poems.map(poem => `
+        <div class="poem-card">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+              <div class="poem-title" style="cursor: pointer;" onclick="viewPoem('${poem.id}')">${poem.title}</div>
+              <div class="poem-meta">${formatTime(poem.created_at)}</div>
+              <div class="poem-content poem-excerpt">${poem.content}</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="deletePoem('${poem.id}')" style="margin-left: 16px;">删除</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('my-poems-list').innerHTML = html;
+    }
+
+    // 删除诗歌
+    async function deletePoem(id) {
+      if (!confirm('确定要删除这首诗吗？')) return;
+
+      const { error } = await supabase
+        .from('poems')
+        .delete()
+        .eq('id', id)
+        .eq('author_id', currentUser.id);
+
+      if (error) {
+        showAlert('删除失败', 'error');
+      } else {
+        showAlert('删除成功');
+        loadMyPoems();
+      }
+    }
+
+    function viewPoem(id) {
+      window.location.href = `poem.html?id=${id}`;
+    }
+
+    // 加载我的感言
+    async function loadMyNotes() {
+      const { data: notes, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('my-notes-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载失败</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (notes.length === 0) {
+        document.getElementById('my-notes-list').innerHTML = `
+          <div class="empty-state">
+            <p>你还没有发表感言</p>
+            <a href="notes.html" class="btn">去发表</a>
+          </div>
+        `;
+        return;
+      }
+
+      const moodNames = {
+        normal: '平静',
+        happy: '开心',
+        sad: '伤感',
+        thoughtful: '深思',
+        lonely: '孤独',
+        hopeful: '希望'
+      };
+
+      const html = notes.map(note => `
+        <div class="note-card">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+              <span class="note-mood mood-${note.mood}">${moodNames[note.mood] || '平静'}</span>
+              <div class="note-content">${note.content}</div>
+              <div class="note-meta">${formatTime(note.created_at)}</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="deleteNote('${note.id}')" style="margin-left: 16px;">删除</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('my-notes-list').innerHTML = html;
+    }
+
+    // 删除感言
+    async function deleteNote(id) {
+      if (!confirm('确定要删除这条感言吗？')) return;
+
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', currentUser.id);
+
+      if (error) {
+        showAlert('删除失败', 'error');
+      } else {
+        showAlert('删除成功');
+        loadMyNotes();
+      }
+    }
+
+    // 初始化
+    updateNav();
+    checkAuth();
+  </script>
+</body>
+</html>

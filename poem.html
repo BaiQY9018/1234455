@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诗歌详情 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="poem-detail">
+      <div class="empty-state">
+        <p>加载中...</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+      <h3 style="margin-bottom: 20px; color: #2c2416;">评论区</h3>
+      
+      <div id="comment-form-container">
+        <!-- 评论表单将在这里显示 -->
+      </div>
+
+      <div id="comments-list">
+        <div class="empty-state">
+          <p>加载评论中...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    // 获取诗歌ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const poemId = urlParams.get('id');
+
+    // 初始化导航
+    updateNav();
+
+    // 加载诗歌详情
+    async function loadPoem() {
+      if (!poemId) {
+        document.getElementById('poem-detail').innerHTML = `
+          <div class="empty-state">
+            <p>诗歌不存在</p>
+            <a href="index.html" class="btn">返回首页</a>
+          </div>
+        `;
+        return;
+      }
+
+      const { data: poem, error } = await supabase
+        .from('poems')
+        .select('*')
+        .eq('id', poemId)
+        .single();
+
+      if (error || !poem) {
+        document.getElementById('poem-detail').innerHTML = `
+          <div class="empty-state">
+            <p>诗歌不存在</p>
+            <a href="index.html" class="btn">返回首页</a>
+          </div>
+        `;
+        return;
+      }
+
+      document.getElementById('poem-detail').innerHTML = `
+        <div class="poem-card">
+          <div class="poem-title" style="font-size: 24px; cursor: default;">${poem.title}</div>
+          <div class="poem-meta">
+            作者：${poem.author_name} · ${formatTime(poem.created_at)}
+          </div>
+          <div class="poem-content" style="font-size: 17px; line-height: 2;">${poem.content}</div>
+        </div>
+      `;
+    }
+
+    // 加载评论表单
+    async function loadCommentForm() {
+      const user = await getCurrentUser();
+      const container = document.getElementById('comment-form-container');
+
+      if (user) {
+        container.innerHTML = `
+          <div class="poem-card" style="margin-bottom: 24px;">
+            <div class="form-group">
+              <textarea id="comment-content" placeholder="写下你的评论..."></textarea>
+            </div>
+            <button class="btn" onclick="submitComment()">发表评论</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 30px;">
+            <p>登录后可以发表评论</p>
+            <a href="auth.html" class="btn">立即登录</a>
+          </div>
+        `;
+      }
+    }
+
+    // 提交评论
+    async function submitComment() {
+      const content = document.getElementById('comment-content').value.trim();
+      if (!content) {
+        showAlert('评论内容不能为空', 'error');
+        return;
+      }
+
+      const user = await getCurrentUser();
+      const { error } = await supabase
+        .from('comments')
+        .insert({
+          poem_id: poemId,
+          user_id: user.id,
+          user_name: user.email.split('@')[0],
+          content: content
+        });
+
+      if (error) {
+        showAlert('评论失败，请稍后重试', 'error');
+      } else {
+        showAlert('评论成功');
+        document.getElementById('comment-content').value = '';
+        loadComments();
+      }
+    }
+
+    // 加载评论列表
+    async function loadComments() {
+      const { data: comments, error } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('poem_id', poemId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('comments-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载评论失败</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (comments.length === 0) {
+        document.getElementById('comments-list').innerHTML = `
+          <div class="empty-state">
+            <p>还没有评论，来抢沙发</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = comments.map(comment => `
+        <div class="comment">
+          <div class="comment-author">${comment.user_name}</div>
+          <div class="comment-content">${comment.content}</div>
+          <div class="comment-time">${formatTime(comment.created_at)}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('comments-list').innerHTML = html;
+    }
+
+    // 页面加载完成后执行
+    loadPoem();
+    loadCommentForm();
+    loadComments();
+  </script>
+</body>
+</html>

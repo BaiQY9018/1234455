@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自留诗集 - 文字寄存，情绪安歇</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html" class="active">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>自留诗集</h1>
+    <p>文字寄存，情绪安歇</p>
+  </div>
+
+  <div class="container">
+    <div id="poems-list">
+      <div class="empty-state">
+        <p>加载中...</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    // 初始化导航
+    updateNav();
+
+    // 加载诗歌列表
+    async function loadPoems() {
+      const { data: poems, error } = await supabase
+        .from('poems')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('加载诗歌失败:', error);
+        document.getElementById('poems-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载失败，请稍后重试</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (poems.length === 0) {
+        document.getElementById('poems-list').innerHTML = `
+          <div class="empty-state">
+            <p>还没有诗歌，来发布第一首吧</p>
+            <a href="publish.html" class="btn">发布诗歌</a>
+          </div>
+        `;
+        return;
+      }
+
+      const html = poems.map(poem => `
+        <div class="poem-card">
+          <div class="poem-title" onclick="viewPoem('${poem.id}')">${poem.title}</div>
+          <div class="poem-meta">
+            作者：${poem.author_name} · ${formatTime(poem.created_at)}
+          </div>
+          <div class="poem-content poem-excerpt">${poem.content}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('poems-list').innerHTML = html;
+    }
+
+    function viewPoem(id) {
+      window.location.href = `poem.html?id=${id}`;
+    }
+
+    // 页面加载完成后执行
+    loadPoems();
+  </script>
+</body>
+</html>

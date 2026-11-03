@@ -1,0 +1,357 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "SimSun", "Noto Serif SC", serif;
+  background: #f5f1e8;
+  color: #333;
+  line-height: 1.8;
+}
+
+/* 导航栏 */
+nav {
+  background: #2c2416;
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+nav .nav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav .logo {
+  color: #e8d5b0;
+  font-size: 20px;
+  letter-spacing: 4px;
+  text-decoration: none;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+nav .nav-links a {
+  color: #c9b896;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+nav .nav-links a:hover {
+  color: #e8d5b0;
+}
+
+nav .nav-links a.active {
+  color: #e8d5b0;
+  border-bottom: 1px solid #e8d5b0;
+}
+
+/* 头部横幅 */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #3d2f1f 0%, #2c2416 100%);
+  color: #e8d5b0;
+}
+
+.hero h1 {
+  font-size: 32px;
+  font-weight: normal;
+  letter-spacing: 8px;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  opacity: 0.7;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+/* 容器 */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* 诗歌卡片 */
+.poem-card {
+  background: #fff;
+  padding: 32px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.poem-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.poem-card .poem-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #2c2416;
+  cursor: pointer;
+}
+
+.poem-card .poem-title:hover {
+  color: #8b6914;
+}
+
+.poem-card .poem-meta {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.poem-card .poem-content {
+  white-space: pre-line;
+  font-size: 16px;
+  color: #444;
+}
+
+.poem-card .poem-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 按钮 */
+.btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #2c2416;
+  color: #e8d5b0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.btn:hover {
+  background: #3d2f1f;
+}
+
+.btn-secondary {
+  background: #6b5b3e;
+}
+
+.btn-secondary:hover {
+  background: #7d6b4d;
+}
+
+.btn-danger {
+  background: #a33;
+}
+
+.btn-danger:hover {
+  background: #b44;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* 表单 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.form-group textarea {
+  min-height: 200px;
+  resize: vertical;
+}
+
+/* 评论区 */
+.comment {
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.comment:last-child {
+  border-bottom: none;
+}
+
+.comment .comment-author {
+  font-size: 14px;
+  color: #8b6914;
+  margin-bottom: 4px;
+}
+
+.comment .comment-content {
+  font-size: 15px;
+  color: #444;
+}
+
+.comment .comment-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* 感言墙 */
+.note-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.note-card .note-mood {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.mood-normal { background: #f0f0f0; color: #666; }
+.mood-happy { background: #fff3cd; color: #856404; }
+.mood-sad { background: #d1ecf1; color: #0c5460; }
+.mood-thoughtful { background: #e2e3e5; color: #383d41; }
+.mood-lonely { background: #d4edda; color: #155724; }
+.mood-hopeful { background: #f8d7da; color: #721c24; }
+
+.note-card .note-content {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.note-card .note-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 诗集卡片 */
+.collection-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.collection-card .collection-name {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #2c2416;
+}
+
+.collection-card .collection-desc {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.collection-card .collection-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  background: #f0e6d2;
+  color: #8b6914;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state p {
+  margin-bottom: 16px;
+}
+
+/* 提示信息 */
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* 页脚 */
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-size: 13px;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+  .container {
+    padding: 20px 16px;
+  }
+  
+  .poem-card {
+    padding: 20px;
+  }
+  
+  nav .nav-links {
+    gap: 12px;
+  }
+  
+  nav .nav-links a {
+    font-size: 13px;
+  }
+}

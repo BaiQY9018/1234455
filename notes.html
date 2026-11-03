@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>感言墙 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html" class="active">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 style="margin-bottom: 24px; color: #2c2416;">感言墙</h2>
+
+    <div id="note-form-container">
+      <!-- 感言表单将在这里显示 -->
+    </div>
+
+    <div id="notes-list">
+      <div class="empty-state">
+        <p>加载中...</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    // 初始化导航
+    updateNav();
+
+    // 加载感言表单
+    async function loadNoteForm() {
+      const user = await getCurrentUser();
+      const container = document.getElementById('note-form-container');
+
+      if (user) {
+        container.innerHTML = `
+          <div class="poem-card" style="margin-bottom: 24px;">
+            <h3 style="margin-bottom: 16px; font-size: 16px;">写下你的感言</h3>
+            <div class="form-group">
+              <select id="note-mood">
+                <option value="normal">平静</option>
+                <option value="happy">开心</option>
+                <option value="sad">伤感</option>
+                <option value="thoughtful">深思</option>
+                <option value="lonely">孤独</option>
+                <option value="hopeful">希望</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <textarea id="note-content" placeholder="此刻的心情..."></textarea>
+            </div>
+            <button class="btn" onclick="submitNote()">发表感言</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 30px; margin-bottom: 24px;">
+            <p>登录后可以发表感言</p>
+            <a href="auth.html" class="btn">立即登录</a>
+          </div>
+        `;
+      }
+    }
+
+    // 提交感言
+    async function submitNote() {
+      const content = document.getElementById('note-content').value.trim();
+      const mood = document.getElementById('note-mood').value;
+      
+      if (!content) {
+        showAlert('感言内容不能为空', 'error');
+        return;
+      }
+
+      const user = await getCurrentUser();
+      
+      const { error } = await supabase
+        .from('notes')
+        .insert({
+          user_id: user.id,
+          user_name: user.email.split('@')[0],
+          content: content,
+          mood: mood
+        });
+
+      if (error) {
+        showAlert('发表失败，请稍后重试', 'error');
+      } else {
+        showAlert('发表成功');
+        document.getElementById('note-content').value = '';
+        loadNotes();
+      }
+    }
+
+    // 加载感言列表
+    async function loadNotes() {
+      const { data: notes, error } = await supabase
+        .from('notes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('notes-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载失败</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (notes.length === 0) {
+        document.getElementById('notes-list').innerHTML = `
+          <div class="empty-state">
+            <p>还没有感言，来留下第一条</p>
+          </div>
+        `;
+        return;
+      }
+
+      const moodNames = {
+        normal: '平静',
+        happy: '开心',
+        sad: '伤感',
+        thoughtful: '深思',
+        lonely: '孤独',
+        hopeful: '希望'
+      };
+
+      const html = notes.map(note => `
+        <div class="note-card">
+          <span class="note-mood mood-${note.mood}">${moodNames[note.mood] || '平静'}</span>
+          <div class="note-content">${note.content}</div>
+          <div class="note-meta">${note.user_name} · ${formatTime(note.created_at)}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('notes-list').innerHTML = html;
+    }
+
+    // 页面加载完成后执行
+    loadNoteForm();
+    loadNotes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 / 注册 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html" class="active">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 400px;">
+    <div class="poem-card">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 id="form-title">登录</h2>
+        <p style="color: #999; font-size: 14px;" id="form-subtitle">欢迎回来</p>
+      </div>
+
+      <form id="auth-form">
+        <div class="form-group">
+          <label>邮箱</label>
+          <input type="email" id="email" placeholder="your@email.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="password" placeholder="至少6位密码" required>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">登录</button>
+      </form>
+
+      <div style="text-align: center; margin-top: 16px;">
+        <p style="font-size: 14px; color: #666;">
+          还没有账号？
+          <a href="#" onclick="toggleMode()" style="color: #8b6914;">立即注册</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    let isLoginMode = true;
+
+    // 初始化导航
+    updateNav();
+
+    function toggleMode() {
+      isLoginMode = !isLoginMode;
+      const title = document.getElementById('form-title');
+      const subtitle = document.getElementById('form-subtitle');
+      const btn = document.querySelector('button[type="submit"]');
+      const toggleLink = document.querySelector('div[style*="text-align: center"] p a');
+
+      if (isLoginMode) {
+        title.textContent = '登录';
+        subtitle.textContent = '欢迎回来';
+        btn.textContent = '登录';
+        toggleLink.textContent = '立即注册';
+      } else {
+        title.textContent = '注册';
+        subtitle.textContent = '创建新账号';
+        btn.textContent = '注册';
+        toggleLink.textContent = '已有账号？去登录';
+      }
+    }
+
+    // 提交表单
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (password.length < 6) {
+        showAlert('密码至少6位', 'error');
+        return;
+      }
+
+      let result;
+      if (isLoginMode) {
+        result = await supabase.auth.signInWithPassword({ email, password });
+      } else {
+        result = await supabase.auth.signUp({ email, password });
+      }
+
+      const { error } = result;
+
+      if (error) {
+        showAlert(error.message, 'error');
+      } else {
+        if (isLoginMode) {
+          showAlert('登录成功');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        } else {
+          showAlert('注册成功，请检查邮箱验证后登录');
+          setTimeout(() => {
+            toggleMode();
+          }, 2000);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

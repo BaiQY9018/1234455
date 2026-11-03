@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诗集合集 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html" class="active">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="color: #2c2416;">诗集合集</h2>
+      <button class="btn" onclick="showCreateForm()">创建新诗集</button>
+    </div>
+
+    <div id="create-form" style="display: none; margin-bottom: 24px;">
+      <div class="poem-card">
+        <h3 style="margin-bottom: 16px; font-size: 16px;">创建新诗集</h3>
+        <div class="form-group">
+          <label>诗集名称</label>
+          <input type="text" id="collection-name" placeholder="给诗集起个名字">
+        </div>
+        <div class="form-group">
+          <label>诗集简介</label>
+          <textarea id="collection-desc" placeholder="简单介绍一下这本诗集" style="min-height: 80px;"></textarea>
+        </div>
+        <button class="btn" onclick="createCollection()">创建</button>
+        <button class="btn btn-secondary" onclick="hideCreateForm()">取消</button>
+      </div>
+    </div>
+
+    <div id="collections-list">
+      <div class="empty-state">
+        <p>加载中...</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    // 初始化导航
+    updateNav();
+
+    function showCreateForm() {
+      document.getElementById('create-form').style.display = 'block';
+    }
+
+    function hideCreateForm() {
+      document.getElementById('create-form').style.display = 'none';
+    }
+
+    // 创建诗集
+    async function createCollection() {
+      const name = document.getElementById('collection-name').value.trim();
+      const desc = document.getElementById('collection-desc').value.trim();
+      
+      if (!name) {
+        showAlert('诗集名称不能为空', 'error');
+        return;
+      }
+
+      const user = await getCurrentUser();
+      if (!user) {
+        showAlert('请先登录', 'error');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('collections')
+        .insert({
+          name: name,
+          description: desc,
+          author_id: user.id,
+          author_name: user.email.split('@')[0]
+        });
+
+      if (error) {
+        showAlert('创建失败，请稍后重试', 'error');
+      } else {
+        showAlert('创建成功');
+        hideCreateForm();
+        document.getElementById('collection-name').value = '';
+        document.getElementById('collection-desc').value = '';
+        loadCollections();
+      }
+    }
+
+    // 加载诗集列表
+    async function loadCollections() {
+      const { data: collections, error } = await supabase
+        .from('collections')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('collections-list').innerHTML = `
+          <div class="empty-state">
+            <p>加载失败</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (collections.length === 0) {
+        document.getElementById('collections-list').innerHTML = `
+          <div class="empty-state">
+            <p>还没有诗集，来创建第一本吧</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = collections.map(col => `
+        <div class="collection-card">
+          <div class="collection-name">${col.name}</div>
+          <div class="collection-desc">${col.description || '暂无简介'}</div>
+          <div class="collection-meta">${col.author_name} · ${formatTime(col.created_at)}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('collections-list').innerHTML = html;
+    }
+
+    // 页面加载完成后执行
+    loadCollections();
+  </script>
+</body>
+</html>

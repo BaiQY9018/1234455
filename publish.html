@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发布诗歌 - 自留诗集</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">自留诗集</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">首页</a>
+        <a href="collections.html">诗集</a>
+        <a href="notes.html">感言墙</a>
+        <a href="auth.html">登录</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 style="margin-bottom: 24px; color: #2c2416;">发布新诗歌</h2>
+    
+    <div class="poem-card">
+      <form id="publish-form">
+        <div class="form-group">
+          <label>诗歌标题</label>
+          <input type="text" id="poem-title" placeholder="给你的诗起个名字" required>
+        </div>
+        
+        <div class="form-group">
+          <label>诗歌内容</label>
+          <textarea id="poem-content" placeholder="写下你的诗歌..." required></textarea>
+        </div>
+        
+        <button type="submit" class="btn">发布诗歌</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    © 自留诗集 · 以诗会友
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    // 检查登录状态
+    async function checkAuth() {
+      const user = await getCurrentUser();
+      if (!user) {
+        window.location.href = 'auth.html';
+      }
+    }
+
+    // 初始化
+    updateNav();
+    checkAuth();
+
+    // 提交表单
+    document.getElementById('publish-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('poem-title').value.trim();
+      const content = document.getElementById('poem-content').value.trim();
+      
+      if (!title || !content) {
+        showAlert('标题和内容不能为空', 'error');
+        return;
+      }
+
+      const user = await getCurrentUser();
+      
+      const { error } = await supabase
+        .from('poems')
+        .insert({
+          title: title,
+          content: content,
+          author_id: user.id,
+          author_name: user.email.split('@')[0]
+        });
+
+      if (error) {
+        showAlert('发布失败，请稍后重试', 'error');
+      } else {
+        showAlert('发布成功');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      }
+    });
+  </script>
+</body>
+</html>
