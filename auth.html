@@ -41,14 +41,15 @@
   <div class="switch">还没有账号？<a href="#" id="toReg">立即注册</a></div>
 </div>
 <footer>© 自留诗集 · 以诗会友</footer>
-<!-- CDN引入supabase，不再依赖本地js文件 -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// 在这里填你Supabase后台的URL和anon密钥
-const supabaseUrl = "这里填你的SUPABASE_URL";
-const supabaseKey = "这里填你的anon public key";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@3/+esm'
+const SUPABASE_URL = "https://tstbbalphdxtilvldnsr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+window.supabase = supabase;
+
+// 空占位函数，消除updateNav未定义报错
 function updateNav(){}
 
 const loginBtn = document.getElementById('loginBtn');
