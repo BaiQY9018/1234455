@@ -41,12 +41,11 @@
   <div class="switch">还没有账号？<a href="#" id="toReg">立即注册</a></div>
 </div>
 <footer>© 自留诗集 · 以诗会友</footer>
-
-<!-- ========== 这里只引入一次！！type="module"不能丢 ========== -->
 <script type="module" src="./js/supabase.js"></script>
-
 <script>
-// 登录逻辑
+// 补这个空函数，防止报错，后面你可以在index.html实现导航更新
+function updateNav(){}
+
 const loginBtn = document.getElementById('loginBtn');
 const toReg = document.getElementById('toReg');
 
@@ -55,12 +54,12 @@ loginBtn.onclick = async ()=>{
   const password = document.getElementById('pwd').value.trim();
   const {error} = await supabase.auth.signInWithPassword({email,password});
   if(error) return alert(error.message);
-  alert("登录成功！");
-  updateNav();
-  location.href = "./index.html";
+  // 弹窗确认之后跳转
+  if(confirm("登录成功！")){
+    location.href = "./index.html";
+  }
 }
 
-// 切换注册
 toReg.onclick = (e)=>{
   e.preventDefault();
   loginBtn.innerText = "注册";
