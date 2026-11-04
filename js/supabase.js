@@ -4,7 +4,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rHtCX_Y10AYxbSVC9R0nhaqNR77B7jle';
 
-// 只创建这一次实例！！
+// 先创建实例，再挂载到window！顺序不能反！
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 window.supabase = supabase;
 
@@ -25,7 +25,7 @@ async function getCurrentUser() {
 async function updateNav() {
   const user = await getCurrentUser();
   const navLinks = document.getElementById('nav-links');
-  if (!navLinks) return; // 页面没有#nav-links就直接退出，不会报错
+  if (!navLinks) return;
 
   if (user) {
     navLinks.innerHTML = `
