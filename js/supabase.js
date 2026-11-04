@@ -1,15 +1,14 @@
 // supabase.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_rHtCX_Y10AYxbSVC9R0nhaqNR77B7jle';
+const SUPABASE_URL = "https://tstbbalphdxtilvldnsr.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle";
 
-// 先创建实例，再挂载到window！顺序不能反！
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 window.supabase = supabase;
 
-function formatTime(isoString) {
-  const date = new Date(isoString);
+function formatTime(isoStr) {
+  const date = new Date(isoStr);
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
@@ -24,25 +23,24 @@ async function getCurrentUser() {
 
 async function updateNav() {
   const user = await getCurrentUser();
-  const navLinks = document.getElementById('nav-links');
-  if (!navLinks) return;
-
-  if (user) {
-    navLinks.innerHTML = `
+  const navBox = document.getElementById('nav-links');
+  if (!navBox) return;
+  if(user){
+    navBox.innerHTML = `
       <a href="index.html">首页</a>
       <a href="collections.html">诗集</a>
       <a href="notes.html">感言墙</a>
       <a href="publish.html">发布</a>
       <a href="admin.html">我的</a>
       <a href="#" onclick="logout()">退出</a>
-    `;
-  } else {
-    navLinks.innerHTML = `
+    `
+  }else{
+    navBox.innerHTML = `
       <a href="index.html">首页</a>
       <a href="collections.html">诗集</a>
       <a href="notes.html">感言墙</a>
       <a href="auth.html">登录</a>
-    `;
+    `
   }
 }
 
@@ -50,10 +48,6 @@ async function logout() {
   await supabase.auth.signOut();
   updateNav();
   location.href = 'index.html';
-}
-
-function showAlert(msg) {
-  alert(msg);
 }
 
 document.addEventListener('DOMContentLoaded', updateNav);
