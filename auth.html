@@ -41,9 +41,14 @@
   <div class="switch">还没有账号？<a href="#" id="toReg">立即注册</a></div>
 </div>
 <footer>© 自留诗集 · 以诗会友</footer>
-<script type="module" src="./js/supabase.js"></script>
+<!-- CDN引入supabase，不再依赖本地js文件 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 补这个空函数，防止报错，后面你可以在index.html实现导航更新
+// 在这里填你Supabase后台的URL和anon密钥
+const supabaseUrl = "这里填你的SUPABASE_URL";
+const supabaseKey = "这里填你的anon public key";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 function updateNav(){}
 
 const loginBtn = document.getElementById('loginBtn');
@@ -54,7 +59,6 @@ loginBtn.onclick = async ()=>{
   const password = document.getElementById('pwd').value.trim();
   const {error} = await supabase.auth.signInWithPassword({email,password});
   if(error) return alert(error.message);
-  // 弹窗确认之后跳转
   if(confirm("登录成功！")){
     location.href = "./index.html";
   }
