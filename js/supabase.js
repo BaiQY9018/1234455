@@ -1,5 +1,5 @@
 // supabase.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@3/+esm'
 
 const SUPABASE_URL = "https://tstbbalphdxtilvldnsr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle";
@@ -47,7 +47,8 @@ async function updateNav() {
 async function logout() {
   await supabase.auth.signOut();
   updateNav();
-  location.href = 'index.html';
+  location.href = 'auth.html';
 }
 
 document.addEventListener('DOMContentLoaded', updateNav);
+
