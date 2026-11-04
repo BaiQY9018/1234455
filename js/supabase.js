@@ -1,8 +1,12 @@
-const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle';
+// supabase.js
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-// 直接把全局supabase替换成客户端实例，所有页面直接用
-window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = 'https://tstbbalphdxtilvldnsr.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_rHtCX_Y10AYxbSVC9R0nhaqNR77B7jle';
+
+// 只创建这一次实例！！
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.supabase = supabase;
 
 function formatTime(isoString) {
   const date = new Date(isoString);
@@ -21,7 +25,8 @@ async function getCurrentUser() {
 async function updateNav() {
   const user = await getCurrentUser();
   const navLinks = document.getElementById('nav-links');
-  
+  if (!navLinks) return; // 页面没有#nav-links就直接退出，不会报错
+
   if (user) {
     navLinks.innerHTML = `
       <a href="index.html">首页</a>
@@ -43,18 +48,12 @@ async function updateNav() {
 
 async function logout() {
   await supabase.auth.signOut();
-  window.location.href = 'index.html';
+  updateNav();
+  location.href = 'index.html';
 }
 
-function showAlert(message, type = 'success') {
-  const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type}`;
-  alertDiv.textContent = message;
-  
-  const container = document.querySelector('.container');
-  container.insertBefore(alertDiv, container.firstChild);
-  
-  setTimeout(() => {
-    alertDiv.remove();
-  }, 3000);
+function showAlert(msg) {
+  alert(msg);
 }
+
+document.addEventListener('DOMContentLoaded', updateNav);
