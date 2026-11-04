@@ -47,10 +47,6 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://tstbbalphdxtilvldnsr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rHTcX_Y10AYxb5Vc9r0hqg_nR77Bjle";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-window.supabase = supabase;
-
-// 空占位函数，消除updateNav未定义报错
-function updateNav(){}
 
 const loginBtn = document.getElementById('loginBtn');
 const toReg = document.getElementById('toReg');
@@ -59,7 +55,10 @@ loginBtn.onclick = async ()=>{
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('pwd').value.trim();
   const {error} = await supabase.auth.signInWithPassword({email,password});
-  if(error) return alert(error.message);
+  if(error) {
+    alert(error.message);
+    return;
+  }
   if(confirm("登录成功！")){
     location.href = "./index.html";
   }
@@ -79,9 +78,11 @@ toReg.onclick = (e)=>{
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('pwd').value.trim();
     const {error} = await supabase.auth.signUp({email,password});
-    if(error) return alert(error.message);
+    if(error) {
+      alert(error.message);
+      return;
+    }
     alert("注册成功，请去邮箱验证！");
-    updateNav();
   }
 }
 </script>
